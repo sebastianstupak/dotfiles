@@ -62,6 +62,7 @@ return require('packer').startup(function(use)
     }
 
     use 'lukas-reineke/indent-blankline.nvim'
+    use "lukas-reineke/virt-column.nvim"
 
     use 'folke/lsp-colors.nvim'
 
