@@ -8,8 +8,8 @@ return require('packer').startup(function(use)
         requires = { { 'nvim-lua/plenary.nvim' } }
     }
     use {
-        "nvim-telescope/telescope-file-browser.nvim",
-        requires = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" }
+        'nvim-telescope/telescope-file-browser.nvim',
+        requires = { 'nvim-telescope/telescope.nvim', 'nvim-lua/plenary.nvim' }
     }
 
     use({
@@ -62,20 +62,22 @@ return require('packer').startup(function(use)
     }
 
     use 'lukas-reineke/indent-blankline.nvim'
-    use "lukas-reineke/virt-column.nvim"
+    use 'lukas-reineke/virt-column.nvim'
 
     use 'folke/lsp-colors.nvim'
 
     use {
-        "folke/trouble.nvim",
-        requires = { "nvim-tree/nvim-web-devicons" },
+        'folke/trouble.nvim',
+        requires = { 'nvim-tree/nvim-web-devicons' },
     }
 
     use({
-        "kylechui/nvim-surround",
-        tag = "*",
+        'kylechui/nvim-surround',
+        tag = '*',
         config = function()
-            require("nvim-surround").setup()
+            require('nvim-surround').setup()
         end
     })
+
+    use 'wellle/context.vim'
 end)
