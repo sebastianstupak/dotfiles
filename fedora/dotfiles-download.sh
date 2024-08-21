@@ -52,7 +52,7 @@ fi
 cd "$target_dir"
 
 # Clone the dotfiles repository
-git clone https://github.com/sebastianstupak/dotfiles.git
+git clone git@github.com:sebastianstupak/dotfiles.git
 
 # Ensure ownership and permissions for the cloned repository
 chown -R "$user_dir:$user_dir" "$target_dir/dotfiles"
