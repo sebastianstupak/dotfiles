@@ -1,7 +1,5 @@
 local wezterm = require 'wezterm'
 
-local wsl_domains = wezterm.default_wsl_domains()
-
 wezterm.on("gui-startup", function(cmd)
   local _, _, window = wezterm.mux.spawn_window(cmd or {})
   window:gui_window():toggle_fullscreen()
@@ -43,6 +41,5 @@ return {
     right = '0.3cell',
     top = '0.6cell',
     bottom = 0,
-  },
-  default_domain = "WSL:Ubuntu",
+  }
 }
