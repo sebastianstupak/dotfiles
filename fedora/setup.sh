@@ -1,50 +1,31 @@
 #!/bin/bash
 
-# Ensure the script is run with superuser privileges
+# Check if the script is run with sudo privileges
 if [ "$EUID" -ne 0 ]; then
-  echo "Please run as root (e.g., using sudo)"
+  echo "Please run this script with sudo privileges."
   exit 1
 fi
 
-# Append configuration to /etc/dnf/dnf.conf for speed optimization
-dnf_conf="/etc/dnf/dnf.conf"
-if ! grep -q "# Speed optimization" "$dnf_conf"; then
-  echo -e "\n# Speed optimization\nfastestmirror=True\nmax_parallel_downloads=5\nkeepcache=True" | sudo tee -a "$dnf_conf"
-fi
-
-# Update DNF
-sudo dnf update -y
-
-# Install RPM Fusion repositories
-sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
-                    https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-
-# Update core group packages
-sudo dnf groupupdate core -y
-
-# Update multimedia group excluding weak dependencies
-sudo dnf groupupdate multimedia --setop="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin -y
-
 # Update sound-and-video group
-sudo dnf groupupdate sound-and-video -y
+dnf groupupdate sound-and-video -y
 
 # Install Firefox plugins
-sudo dnf install -y gstreamer1-plugin-openh264 mozilla-openh264
+dnf install -y gstreamer1-plugin-openh264 mozilla-openh264
 
 # Install Git and all related tools
-sudo dnf install -y git-all
+dnf install -y git-all
 
 # Install Neovim
-sudo dnf install -y neovim
+dnf install -y neovim
 
 # Ensure Flathub repository is added
 if ! flatpak remotes | grep -q flathub; then
   echo "Adding Flathub repository..."
-  sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+  flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 fi
 
 # Update Flatpak repositories
-sudo flatpak update -y
+flatpak update -y
 
 # Install WezTerm via Flatpak
 if ! flatpak list | grep -q org.wezfurlong.wezterm; then
@@ -53,10 +34,29 @@ if ! flatpak list | grep -q org.wezfurlong.wezterm; then
 fi
 
 # Install tmux
-sudo dnf install tmux
+dnf install -y tmux
 
-# Install tmux plugin manager
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+# Install Zellij
+install_zellij() {
+  echo "Installing Zellij..."
+  ZELLIJ_VERSION=$(curl -s https://api.github.com/repos/zellij-org/zellij/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+  ZELLIJ_URL="https://github.com/zellij-org/zellij/releases/download/${ZELLIJ_VERSION}/zellij-x86_64-unknown-linux-musl.tar.gz"
+  
+  # Download and extract Zellij
+  curl -L "$ZELLIJ_URL" | tar xz -C /usr/local/bin
+  
+  # Make Zellij executable
+  chmod +x /usr/local/bin/zellij
+  
+  echo "Zellij ${ZELLIJ_VERSION} has been installed."
+}
+
+# Check if Zellij is already installed
+if ! command -v zellij &> /dev/null; then
+  install_zellij
+else
+  echo "Zellij is already installed."
+fi
 
 # Prompt for the target username
 read -p "Enter the username for which you want to set up aliases: " target_user
@@ -136,6 +136,9 @@ fi
   echo ".bashrc has been updated to source files in .bashrc.d"
   echo ".profile has been updated to source .bashrc"
   echo "Please log out and log back in to apply all changes."
+
+  # Install tmux plugin manager for the target user
+  sudo -u $target_user git clone https://github.com/tmux-plugins/tpm $user_home/.tmux/plugins/tpm
 else
   echo "User $target_user does not exist. Please check the username and try again."
   exit 1

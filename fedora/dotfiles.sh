@@ -19,18 +19,20 @@ fi
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 dotfiles_dir="$script_dir/../"  # Go one level up to /dotfiles
 
-# Set the path to the dotfiles' nvim, wezterm, and tmux directories
+# Set the path to the dotfiles' nvim, wezterm, tmux, and zellij directories
 nvim_config_source="$dotfiles_dir/nvim"
 wezterm_config_source="$dotfiles_dir/wezterm/wezterm.lua"
 tmux_config_source="$dotfiles_dir/tmux/tmux.conf"
+zellij_config_source="$dotfiles_dir/zellij"
 
 # Specify the target user's home directory
 target_home=$(eval echo ~$target_user)
 
-# Neovim, WezTerm, and tmux configuration destinations
+# Neovim, WezTerm, tmux, and Zellij configuration destinations
 nvim_config_dest="$target_home/.config/nvim"
 wezterm_config_dest="$target_home/.config/wezterm"
 tmux_config_dest="$target_home/.config/tmux"
+zellij_config_dest="$target_home/.config/zellij"
 
 # Remove existing Neovim configuration directory if it exists
 if [ -d "$nvim_config_dest" ]; then
@@ -77,6 +79,21 @@ if [ -f "$tmux_config_source" ]; then
   echo "tmux configuration linked successfully for user '$target_user'."
 else
   echo "tmux.conf not found in $tmux_config_source. Using the basic configuration."
+fi
+
+# Create the Zellij configuration directory if it doesn't exist
+mkdir -p "$zellij_config_dest"
+
+# Link the entire zellij folder from the dotfiles repository
+if [ -d "$zellij_config_source" ]; then
+  # Remove existing Zellij configuration if it exists
+  if [ -d "$zellij_config_dest" ]; then
+    rm -rf "$zellij_config_dest"
+  fi
+  ln -s "$zellij_config_source" "$zellij_config_dest"
+  echo "Zellij configuration folder linked successfully for user '$target_user'."
+else
+  echo "Zellij configuration folder not found in $zellij_config_source!"
 fi
 
 echo "Dotfiles setup complete for user '$target_user'!"
