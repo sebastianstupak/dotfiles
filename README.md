@@ -1,3 +1,8 @@
 # dotfiles
 
-Personal dotfiles for WSL + Wezterm + Neovim.
+Personal configuration files.
+
+- fedora distro setup
+- wezterm
+- zellij
+- nvim
