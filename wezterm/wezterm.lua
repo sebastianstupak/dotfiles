@@ -21,7 +21,7 @@ return {
   
   enable_tab_bar = false,
 
-  font_size = 20,
+  font_size = 16,
   font = wezterm.font('JetBrains Mono'),
   
 

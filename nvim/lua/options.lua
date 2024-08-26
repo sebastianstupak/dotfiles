@@ -31,3 +31,10 @@ vim.opt.laststatus = 3;
 
 vim.opt.relativenumber = true
 
+-- Set highlight on search
+vim.o.hlsearch = true
+
+-- Case insensitive searching UNLESS /C or capital in search
+vim.o.ignorecase = true
+vim.o.smartcase = true
+

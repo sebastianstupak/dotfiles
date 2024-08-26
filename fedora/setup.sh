@@ -36,7 +36,7 @@ fi
 # Install tmux
 dnf install -y tmux
 
-# Install Zellij
+# Install fellij
 install_zellij() {
   echo "Installing Zellij..."
   ZELLIJ_VERSION=$(curl -s https://api.github.com/repos/zellij-org/zellij/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
@@ -58,10 +58,12 @@ else
   echo "Zellij is already installed."
 fi
 
+# Install Go
+sudo dnf install golang
+
 # Prompt for the target username
 read -p "Enter the username for which you want to set up aliases: " target_user
 
-# Check if the user exists
 if id "$target_user" &>/dev/null; then
   user_home=$(eval echo ~$target_user)
   bashrc="$user_home/.bashrc"
@@ -102,6 +104,14 @@ if id "$target_user" &>/dev/null; then
     echo 'export XDG_DATA_DIRS="$XDG_DATA_DIRS:/var/lib/flatpak/exports/share:$HOME/.local/share/flatpak/exports/share"' >> "$aliases_file"
   fi
 
+  # Set up Go environment for the target user
+  echo "Setting up Go environment for $target_user..."
+  sudo -u $target_user mkdir -p $user_home/go
+  if ! grep -q "export GOPATH=" "$bashrc"; then
+    echo 'export GOPATH=$HOME/go' >> "$bashrc"
+    echo 'export PATH=$PATH:$GOPATH/bin' >> "$bashrc"
+  fi
+
   # Ensure the aliases file has the correct permissions
   chown $target_user:$target_user "$aliases_file"
   chmod 644 "$aliases_file"
@@ -132,7 +142,7 @@ fi
 ' >> "$profile"
   fi
 
-  echo "Aliases and XDG_DATA_DIRS updates added to $aliases_file."
+  echo "Aliases, XDG_DATA_DIRS updates, and Go environment added for $target_user."
   echo ".bashrc has been updated to source files in .bashrc.d"
   echo ".profile has been updated to source .bashrc"
   echo "Please log out and log back in to apply all changes."
