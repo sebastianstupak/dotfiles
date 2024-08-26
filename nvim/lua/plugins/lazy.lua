@@ -63,6 +63,8 @@ require('lazy').setup({
       "nvim-lua/plenary.nvim",
     },
   },
+  'wellle/context.vim',
+  'mbbill/undotree',
   'folke/zen-mode.nvim',
   'tpope/vim-obsession',
   -- Tree
