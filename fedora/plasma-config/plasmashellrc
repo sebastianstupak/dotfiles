@@ -1,9 +1,6 @@
 [KRunner]
 PopupPosition=Center
 
-[PlasmaTransientsConfig]
-PreloadWeight=42
-
 [PlasmaViews]
 panelPosition=0
 panelVisibility=1
