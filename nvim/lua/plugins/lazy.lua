@@ -1,3 +1,5 @@
+
+
 -- Install lazylazy
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -17,23 +19,23 @@ vim.o.termguicolors = true
 
 require('lazy').setup({
   -- Molten (jupyter notebook related)
-  {
-    "vhyrro/luarocks.nvim",
-    priority = 1001, -- this plugin needs to run before anything else
-    opts = {
-      rocks = { "magick" },
-    },
-  },
-  {
-    "3rd/image.nvim",
-    dependencies = { "luarocks.nvim" },
-  },
-  {
-    "benlubas/molten-nvim",
-    version = "^1.0.0",     -- use version <2.0.0 to avoid breaking changes
-    dependencies = { "3rd/image.nvim" },
-    build = ":UpdateRemotePlugins",
-  },
+--  {
+--    "vhyrro/luarocks.nvim",
+--    priority = 1001, -- this plugin needs to run before anything else
+--    opts = {
+--      rocks = { "magick" },
+--    },
+--  },
+--  {
+--    "3rd/image.nvim",
+--    dependencies = { "luarocks.nvim" },
+--  },
+--  {
+--    "benlubas/molten-nvim",
+--    version = "^1.0.0",     -- use version <2.0.0 to avoid breaking changes
+--    dependencies = { "3rd/image.nvim" },
+--    build = ":UpdateRemotePlugins",
+--  },
 
   {
     "ThePrimeagen/harpoon",
@@ -68,12 +70,12 @@ require('lazy').setup({
     end
   },
   'onsails/lspkind.nvim',
-  {
-    "iamcco/markdown-preview.nvim",
-    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-    ft = { "markdown" },
-    build = function() vim.fn["mkdp#util#install"]() end,
-  },
+--  {
+--    "iamcco/markdown-preview.nvim",
+--    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+--    ft = { "markdown" },
+--    build = function() vim.fn["mkdp#util#install"]() end,
+--  },
   "preservim/vim-pencil",
   {
     "epwalsh/obsidian.nvim",
@@ -166,34 +168,42 @@ require('lazy').setup({
     end
   },
 
-  {
-    "folke/noice.nvim",
-    config = function()
-      require("noice").setup({
-        -- add any options here
-        routes = {
-          {
-            filter = {
-              event = 'msg_show',
-              any = {
-                { find = '%d+L, %d+B' },
-                { find = '; after #%d+' },
-                { find = '; before #%d+' },
-                { find = '%d fewer lines' },
-                { find = '%d more lines' },
-              },
-            },
-            opts = { skip = true },
-          }
-        },
-      })
-    end,
-    dependencies = {
+--  {
+--    "folke/noice.nvim",
+--    config = function()
+--      require("noice").setup({
+--        -- add any options here
+--        messages = {
+--		enabled = true,
+--		view = "notify",
+--		view_error = "notify",
+--		view_warn = "notify",
+--		view_history = "messages",
+--		view_search = "virtualtext"
+--	},
+--	routes = {
+--      {
+--            filter = {
+--              event = 'msg_show',
+--              any = {
+--                { find = '%d+L, %d+B' },
+--                { find = '; after #%d+' },
+--                { find = '; before #%d+' },
+--                { find = '%d fewer lines' },
+--                { find = '%d more lines' },
+--              },
+--            },
+--            opts = { skip = true },
+--          }
+--        },
+--      })
+--    end,
+--    dependencies = {
       -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
-      "MunifTanjim/nui.nvim",
-      "rcarriga/nvim-notify",
-    }
-  },
+--      "MunifTanjim/nui.nvim",
+--      "rcarriga/nvim-notify",
+--    }
+--  },
 
   'ray-x/go.nvim',
   'ray-x/guihua.lua',

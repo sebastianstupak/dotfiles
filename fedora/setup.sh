@@ -357,52 +357,64 @@ else
 fi
 
 if ask_permission "setup plasma configuration"; then
-   echo "Setting up plasma configuration..."
-   
-   # Copy panel configuration
-   sudo -u $target_user cp -r "$user_home/code/dotfiles/fedora/plasma-config/plasma-"* "$user_home/.config/"
-   
-   # Setup toggle script
-   sudo -u $target_user mkdir -p "$user_home/.local/bin"
-   sudo -u $target_user cp "$user_home/code/dotfiles/fedora/plasma-config/scripts/toggle-plasma-panel.sh" \
-       "$user_home/.local/bin/toggle-plasma-panel"
-   chmod +x "$user_home/.local/bin/toggle-plasma-panel"
-   
-   # Configure shortcut
-   sudo -u $target_user kwriteconfig5 --file "$user_home/.config/khotkeysrc" \
-       --group "Data" --key "DataCount" "1"
-   
-   sudo -u $target_user kwriteconfig5 --file "$user_home/.config/khotkeysrc" \
-       --group "Data_1" --key "Comment" "Toggle Panel and Launcher" \
-       --group "Data_1" --key "Enabled" "true" \
-       --group "Data_1" --key "Name" "Toggle Panel and Launcher" \
-       --group "Data_1" --key "Type" "SIMPLE_ACTION_DATA"
-   
-   sudo -u $target_user kwriteconfig5 --file "$user_home/.config/khotkeysrc" \
-       --group "Data_1_1" --key "Type" "COMMAND_URL"
-   
-   sudo -u $target_user kwriteconfig5 --file "$user_home/.config/khotkeysrc" \
-       --group "Data_1_1Actions" --key "CommandURL" "$user_home/.local/bin/toggle-plasma-panel"
-   
-   sudo -u $target_user kwriteconfig5 --file "$user_home/.config/khotkeysrc" \
-       --group "Data_1_1Triggers" --key "Key" "Meta" \
-       --group "Data_1_1Triggers" --key "Type" "SHORTCUT"
-   
-   # Remove conflicting Meta shortcuts
-   sudo -u $target_user kwriteconfig5 --file "$user_home/.config/kglobalshortcutsrc" \
-       --group "plasmashell" --key "_launch" "none,none,none"
-   sudo -u $target_user kwriteconfig5 --file "$user_home/.config/kglobalshortcutsrc" \
-       --group "plasmashell" --key "activate application launcher" "none,none,none"
-   
-   # Reload configurations
-   sudo -u $target_user qdbus org.kde.kglobalaccel /kglobalaccel org.kde.kglobalaccel.reloadConfig
-   
-   # Restart plasma
-   sudo -u $target_user killall plasmashell || true
-   sleep 2
-   sudo -u $target_user XDG_RUNTIME_DIR=/run/user/$(id -u $target_user) DISPLAY=:0 plasmashell --replace &
-   
-   echo "Plasma configuration complete. You may need to log out and back in for shortcuts to take effect."
+    echo "Setting up plasma configuration..."
+    
+    # Copy panel configuration using relative paths
+    sudo -u $target_user cp -r "./plasma-config/plasma-"* "$user_home/.config/"
+    
+    # Setup toggle script
+    sudo -u $target_user mkdir -p "$user_home/.local/bin"
+    sudo -u $target_user cp "./plasma-config/scripts/toggle-plasma-panel.sh" \
+        "$user_home/.local/bin/toggle-plasma-panel"
+    chmod +x "$user_home/.local/bin/toggle-plasma-panel"
+    
+    # Configure shortcuts without kglobalaccel
+    if [ -n "$(pgrep -u $target_user plasma)" ]; then
+        echo "Stopping Plasma..."
+        sudo -u $target_user kquitapp5 plasmashell || true
+        sleep 2
+    fi
+    
+    # Configure shortcut files
+    sudo -u $target_user mkdir -p "$user_home/.config"
+    
+    sudo -u $target_user tee "$user_home/.config/kglobalshortcutsrc" > /dev/null << 'EOL'
+[plasmashell]
+_launch=none,none,none
+activate application launcher=none,none,none
+show dashboard=none,none,none
+
+[kwin]
+ShowDesktopGrid=none,none,none
+EOF
+EOL
+
+    sudo -u $target_user tee "$user_home/.config/khotkeysrc" > /dev/null << EOL
+[Data]
+DataCount=1
+
+[Data_1]
+Comment=Toggle Panel and Launcher
+Enabled=true
+Name=Toggle Panel and Launcher
+Type=SIMPLE_ACTION_DATA
+
+[Data_1_1]
+Type=COMMAND_URL
+
+[Data_1_1Actions]
+CommandURL=$user_home/.local/bin/toggle-plasma-panel
+
+[Data_1_1Triggers]
+Key=Meta
+Type=SHORTCUT
+EOL
+
+    # Start Plasma again
+    echo "Starting Plasma..."
+    sudo -u $target_user XDG_RUNTIME_DIR=/run/user/$(id -u $target_user) DISPLAY=:0 plasmashell > /dev/null 2>&1 &
+    
+    echo "Plasma configuration complete. The changes will take effect after logging out and back in."
 fi
 
 echo "Setup complete!"

@@ -195,19 +195,62 @@ sudo systemctl enable --now firewalld
 # Configure IPv6
 source "$SCRIPT_DIR/scripts/ipv6_setup.sh"
 
-# Set up aliases
+# Set up aliases directory and files
 mkdir -p "$HOME/.config/protonvpn"
 cp "$SCRIPT_DIR/config/aliases.sh" "$HOME/.config/protonvpn/wg_aliases"
+chmod +x "$HOME/.config/protonvpn/wg_aliases"
 
-# Add source line to shell config if not already present
+# Create systemd user directory
+mkdir -p "$HOME/.config/systemd/user"
+
+# Create systemd service for vpn aliases
+cat > "$HOME/.config/systemd/user/vpn-aliases.service" << 'EOF'
+[Unit]
+Description=ProtonVPN WireGuard Aliases
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'source ~/.config/protonvpn/wg_aliases'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target
+EOF
+
+# Add source line to shell config files properly
 for RC_FILE in "$HOME/.bashrc" "$HOME/.zshrc"; do
     if [ -f "$RC_FILE" ]; then
-        if ! grep -q "source ~/.config/protonvpn/wg_aliases" "$RC_FILE"; then
-            echo -e "\nsource ~/.config/protonvpn/wg_aliases" >> "$RC_FILE"
-            echo -e "${GREEN}Added aliases to $RC_FILE${NC}"
-        fi
+        # Create backup
+        cp "$RC_FILE" "${RC_FILE}.backup"
+        
+        # Remove old source line if exists
+        sed -i '/source ~\/.config\/protonvpn\/wg_aliases/d' "$RC_FILE"
+        
+        # Add new source line ensuring it ends with newline
+        echo -e "\n# ProtonVPN WireGuard aliases\nsource ~/.config/protonvpn/wg_aliases\n" >> "$RC_FILE"
+        
+        echo -e "${GREEN}Updated $RC_FILE${NC}"
     fi
 done
+
+# Enable and start the systemd service
+systemctl --user enable vpn-aliases.service
+systemctl --user start vpn-aliases.service
+
+echo -e "\n${GREEN}Setup complete! Available commands:${NC}"
+echo "vpn                 - Show help and available commands"
+echo "vpn up [config]     - Connect to VPN"
+echo "vpn down [config]   - Disconnect from VPN"
+echo "vpn switch [config] - Switch to different config"
+echo "vpn status         - Show VPN status"
+echo "vpn list           - List available configurations"
+echo "vpn menu           - Interactive menu"
+echo "vpn ip             - Show current IP"
+echo "vpn test           - Test for IP and DNS leaks"
+
+echo -e "\n${BLUE}To start using the commands now, run:${NC}"
+echo -e "${GREEN}source ~/.config/protonvpn/wg_aliases${NC}"
 
 echo -e "\n${GREEN}Setup complete! Available commands:${NC}"
 echo "vpn                 - Show help and available commands"
